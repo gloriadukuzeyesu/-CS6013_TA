@@ -6,7 +6,7 @@
 // HashTable will be an array of entries;
 
 /**
- * this fx is used to find the index for the key. If that spot contains
+ * this method is used to find the index for the key. If that spot contains
  * a value, we find the next available spot(a higher index)
  * if you reach the end of the array, go back to the front
  * @brief Hash the address to find the location to place the address/size into the hash table.
