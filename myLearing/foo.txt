@@ -1,0 +1,17 @@
+foo.txt
+main
+main.cpp
+main.o
+test
+
+
+foo.txt
+foo.txt
+main
+main.cpp
+main.o
+test
+main
+main.cpp
+main.o
+test

@@ -1,0 +1,3 @@
+/Users/gloriadukuzeyesu/CS6013_TA/Malloc/MallocReplacement/cmake-build-debug/CMakeFiles/MallocReplacement.dir
+/Users/gloriadukuzeyesu/CS6013_TA/Malloc/MallocReplacement/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/gloriadukuzeyesu/CS6013_TA/Malloc/MallocReplacement/cmake-build-debug/CMakeFiles/rebuild_cache.dir

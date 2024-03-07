@@ -1,0 +1,3 @@
+/Users/gloriadukuzeyesu/CS6013_TA/UnixShell/cmake-build-debug/CMakeFiles/UnixShell.dir
+/Users/gloriadukuzeyesu/CS6013_TA/UnixShell/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/gloriadukuzeyesu/CS6013_TA/UnixShell/cmake-build-debug/CMakeFiles/rebuild_cache.dir

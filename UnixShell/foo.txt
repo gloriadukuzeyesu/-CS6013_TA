@@ -1,0 +1,14 @@
+CMakeLists.txt
+Makefile
+cmake-build-debug
+file.txt
+file1.txt
+foo.txt
+main.cpp
+main.o
+program
+shelpers.cpp
+shelpers.hpp
+shelpers.o
+someFile
+test_folder

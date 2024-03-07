@@ -1,0 +1,7 @@
+# ninja log v5
+17	30	1679092132219718000	libMalloc.cpp.a	1d0abb2695ecdcbd
+526	567	1679977264049649151	MallocReplacement	2b04ad1044ac4f48
+2	268	1679951530837329553	CMakeFiles/MallocReplacement.dir/main.cpp.o	38d14e54fd742582
+0	74	1709318820705036221	build.ninja	e805fe54d4b383e3
+0	3	0	clean	3c8e6cc385ee00ba
+2	526	1679977264005472950	CMakeFiles/MallocReplacement.dir/msdMalloc.cpp.o	ac7f7b5a2eae45b7
