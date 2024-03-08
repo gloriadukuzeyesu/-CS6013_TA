@@ -1,4 +1,4 @@
-#include "CustomMalloc.h"
+#include "MyMalloc.h"
 #include <sys/mman.h> // for mmap()
 #include <cstdio>
 
@@ -22,7 +22,6 @@ size_t HashTable::hashFunction(void *ptr_address)
     }
 
     size_t index = reinterpret_cast<size_t>(ptr_address) >> VirtualAddressOffsetSizeInBits;
-    index = index % tableSize_;
     // Notes: Linear probing, collision handling will be done in insert()
     return index;
 }
@@ -78,13 +77,16 @@ bool HashTable::insert(void *ptr, size_t allocatedMemorySize)
 {
     if (countOfEntries_ >= tableSize_)
     {
+        std::cout << "About to grow table\n";
         // grow the table
         grow();
+        std::cout << "Done growing table \n";
     }
 
     // Find the index (where to insert the address) of the empty slot
     // using probing based on the pointer and the size of the table
     size_t index = hashFunction(ptr);
+    index = index % tableSize_;
 
     // verify if the nothing is at this index.
     // trying to search an empty slots in the table
@@ -114,6 +116,7 @@ bool HashTable::insert(void *ptr, size_t allocatedMemorySize)
 void HashTable::remove(void *ptr)
 {
     size_t index = hashFunction(ptr);
+    index = index % tableSize_;
     while (!hashTableArray[index].isDeleted_)
     {
         if (hashTableArray[index].memoryBlockPointer_ == ptr)
@@ -133,6 +136,7 @@ void HashTable::remove(void *ptr)
 HashTableEntry *HashTable::find(void *ptr_address)
 {
     size_t index = hashFunction(ptr_address);
+    index = index % tableSize_;
     while (!hashTableArray[index].isDeleted_)
     {
         if (hashTableArray[index].memoryBlockPointer_ == ptr_address)
@@ -187,6 +191,7 @@ void ::HashTable::grow()
     }
     // step5. Copy all existing valid entries into the new hash table
     // re-hash all the current entries into the new table.
+
     for (size_t i = 0; i < new_table_size; i++)
     {
         if (!hashTableArray[i].isDeleted_)
@@ -198,7 +203,6 @@ void ::HashTable::grow()
             {
                 newIndex = (newIndex + 1) % new_table_size;
             }
-
             // copy things from old hashtable to new hashtable
             newHashTable[newIndex].memoryBlockPointer_ = hashTableArray[i].memoryBlockPointer_;
             newHashTable[newIndex].size_of_memory_allocate_ = hashTableArray[i].size_of_memory_allocate_;
@@ -208,10 +212,11 @@ void ::HashTable::grow()
 
     // swap
     std::swap(hashTableArray, newHashTable);
+    // hashTableArray = newHashTable; result into seg error
     tableSize_ = new_table_size;
 
-    // deallocate the old table using munmap
-    int ret = munmap(hashTableArray, tableSize_ * sizeof(HashTableEntry));
+    // deallocate the old table using munmap (hashTableArray and newHashTable have swapped their content)
+    int ret = munmap(newHashTable, tableSize_ * sizeof(HashTableEntry));
     if (ret == -1)
     {
         perror("munmap failed when deallocating memory for old hashtable");
@@ -225,7 +230,7 @@ void ::HashTable::grow()
  * @brief Construct a new Custom Malloc:: Custom Malloc object
  *
  */
-CustomMalloc::CustomMalloc()
+MyMalloc::MyMalloc()
 {
 }
 
@@ -233,7 +238,7 @@ CustomMalloc::CustomMalloc()
  * @brief Destroy the Custom Malloc:: Custom Malloc object
  *
  */
-CustomMalloc::~CustomMalloc()
+MyMalloc::~MyMalloc()
 {
 }
 
@@ -241,9 +246,8 @@ CustomMalloc::~CustomMalloc()
  * @brief
  *
  * @param bytesToAllocate
- * @return void*
  */
-void *CustomMalloc::allocate(size_t bytesToAllocate)
+void *MyMalloc::allocate(size_t bytesToAllocate)
 {
 }
 
@@ -251,8 +255,8 @@ void *CustomMalloc::allocate(size_t bytesToAllocate)
  * @brief
  *
  * @param ptr
- * @return void*
+
  */
-void *CustomMalloc::deallocate(void *ptr)
+void *MyMalloc::deallocate(void *ptr)
 {
 }

@@ -38,23 +38,23 @@ public:
     HashTable() = default;  // constuctor
     ~HashTable() = default; // deconstructor
     HashTable(size_t initialSizeTable);
-    bool insert(void *ptr, size_t sizeOfMemoryAllocated);
-    void remove(void *ptr);
-    size_t hashFunction(void *ptr);
+    bool insert(void *ptr_address, size_t sizeOfMemoryAllocated);
+    void remove(void *ptr_address);
+    size_t hashFunction(void *ptr_address);
 
 private:
     HashTableEntry *find(void *ptr_address);
     void grow();
 };
 
-class CustomMalloc
+class MyMalloc
 {
 
 public:
-    CustomMalloc();  // constructor
-    ~CustomMalloc(); // Destructor
+    MyMalloc();  // constructor
+    ~MyMalloc(); // Destructor
 
 public:
     void *allocate(size_t bytesToAllocate);
-    void *deallocate(void *ptr);
+    void *deallocate(void *ptr_address);
 };
