@@ -41,20 +41,25 @@ public:
     bool insert(void *ptr_address, size_t sizeOfMemoryAllocated);
     void remove(void *ptr_address);
     size_t hashFunction(void *ptr_address);
+    HashTableEntry *find(void *ptr_address);
+    // TODO 
+    // I made find() public cz I need to used it in the allocate() and deallocate(), Ask Dave if there is an alternative of this. BCZ instructions say find() is private
 
 private:
-    HashTableEntry *find(void *ptr_address);
-    void grow();
+    // HashTableEntry *find(void *ptr_address); // 
+    void growhashtable();
 };
 
 class MyMalloc
 {
 
 public:
+    HashTable hashTable_{};
     MyMalloc();  // constructor
     ~MyMalloc(); // Destructor
-
-public:
     void *allocate(size_t bytesToAllocate);
     void *deallocate(void *ptr_address);
+
+private:
+    static const size_t INITIAL_TABLE_SIZE = 4 * PAGE_SIZE; // Initial memoryBlockSize_ of the hash table
 };

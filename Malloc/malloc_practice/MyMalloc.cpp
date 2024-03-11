@@ -69,30 +69,30 @@ HashTable::HashTable(size_t initialSizeTable)
 
 /**
  * @brief Insert an entry into the hash table.
- * @param ptr Pointer to the memory address to be inserted.
+ * @param ptr_address Pointer to the memory address to be inserted.
  * @param allocatedMemorySize Size of the memory allocated to the address.
  * @return True if the insertion was successful, false otherwise.
  */
-bool HashTable::insert(void *ptr, size_t allocatedMemorySize)
+bool HashTable::insert(void *ptr_address, size_t allocatedMemorySize)
 {
     if (countOfEntries_ >= tableSize_)
     {
         std::cout << "About to grow table\n";
         // grow the table
-        grow();
+        growhashtable();
         std::cout << "Done growing table \n";
     }
 
     // Find the index (where to insert the address) of the empty slot
     // using probing based on the pointer and the size of the table
-    size_t index = hashFunction(ptr);
+    size_t index = hashFunction(ptr_address);
     index = index % tableSize_;
 
     // verify if the nothing is at this index.
     // trying to search an empty slots in the table
     while (!hashTableArray[index].isDeleted_)
     {
-        if (hashTableArray[index].memoryBlockPointer_ == ptr)
+        if (hashTableArray[index].memoryBlockPointer_ == ptr_address)
         {
             // This entry already exists in the hash table
             return false;
@@ -102,7 +102,7 @@ bool HashTable::insert(void *ptr, size_t allocatedMemorySize)
     }
 
     // add the entry to the hash Table
-    hashTableArray[index].memoryBlockPointer_ = ptr;
+    hashTableArray[index].memoryBlockPointer_ = ptr_address;
     hashTableArray[index].isDeleted_ = false;
     hashTableArray[index].size_of_memory_allocate_ = allocatedMemorySize;
     countOfEntries_++; // update the count in the hashTable
@@ -113,13 +113,13 @@ bool HashTable::insert(void *ptr, size_t allocatedMemorySize)
  * @brief remove an entry from the table
  *
  */
-void HashTable::remove(void *ptr)
+void HashTable::remove(void *ptr_address)
 {
-    size_t index = hashFunction(ptr);
+    size_t index = hashFunction(ptr_address);
     index = index % tableSize_;
     while (!hashTableArray[index].isDeleted_)
     {
-        if (hashTableArray[index].memoryBlockPointer_ == ptr)
+        if (hashTableArray[index].memoryBlockPointer_ == ptr_address)
         {
             // mark it as deleted (lazy deletion)
             hashTableArray[index].isDeleted_ = true;
@@ -155,7 +155,7 @@ HashTableEntry *HashTable::find(void *ptr_address)
  * then re-hash all the current entries into the new table.
  *
  */
-void ::HashTable::grow()
+void ::HashTable::growhashtable()
 {
     /*
     1. create the new size of the hash table which is twice the size of the current table
@@ -232,15 +232,14 @@ void ::HashTable::grow()
  */
 MyMalloc::MyMalloc()
 {
+    hashTable_ = HashTable(INITIAL_TABLE_SIZE);
 }
 
 /**
  * @brief Destroy the Custom Malloc:: Custom Malloc object
  *
  */
-MyMalloc::~MyMalloc()
-{
-}
+MyMalloc::~MyMalloc() {}
 
 /**
  * @brief
@@ -249,14 +248,76 @@ MyMalloc::~MyMalloc()
  */
 void *MyMalloc::allocate(size_t bytesToAllocate)
 {
+    //round the up the allocation memoryBlockSize_ to the next multiple of the page size or alignment
+
+    // source: stack overflow 
+    size_t allocatedBlockSize = (bytesToAllocate + PAGE_SIZE - 1) & ~(PAGE_SIZE - 1);
+
+    // call mmap to allocate the memory
+    void *ptr = mmap(nullptr, allocatedBlockSize,  PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0); 
+    if (ptr == MAP_FAILED) 
+    {
+        printf("Error mmap %s", strerror(errno));
+        return nullptr;
+    }
+    
+    //Only works if find() is public. Now it is inaccessible  
+    // Check if the pointer is already in the hash table
+    if(hashTable_.find(ptr) != nullptr) 
+    {
+        int ret = munmap(ptr, allocatedBlockSize);
+        if (ret < 0) 
+        {
+             printf("Error 2mmap %s", strerror(errno));
+        } 
+        else
+        {
+            perror("Pointer already exist in the HashTable");
+            return nullptr;
+
+        }
+
+    }
+
+
+    // Insert the returned pointer to the memory address and 
+    // the allocation memoryBlockSize_ in the hash table
+    bool isInserted = hashTable_.insert(ptr, allocatedBlockSize);
+    if(!isInserted)
+    {
+        if (munmap(ptr, allocatedBlockSize) < 0) {
+            printf("Error %s", strerror(errno));
+            return nullptr;
+        };
+    }
+    /**
+     * if the insertion into the hashtable fails, this means there is no more space available in the hashtable 
+     */
+    return ptr;
 }
 
 /**
  * @brief
  *
- * @param ptr
+ * @param ptr_address
 
  */
-void *MyMalloc::deallocate(void *ptr)
+void *MyMalloc::deallocate(void *ptr_address)
 {
+    // remove entry from the hastTable
+    HashTableEntry *entry = hashTable_.find(ptr_address); 
+    if(entry == nullptr)
+    {
+        return;
+    }
+    entry->isDeleted_ = true; // lazy deletion (being handled in remove() too ) ??
+    hashTable_.remove(entry->memoryBlockPointer_); 
+
+    // Deallocate the memory or remove the mapping 
+    int newPr = munmap(entry->memoryBlockPointer_, entry->size_of_memory_allocate_); 
+
+    if(newPr < 0) 
+    {
+        printf("Error %s", strerror(errno));
+    }
 }

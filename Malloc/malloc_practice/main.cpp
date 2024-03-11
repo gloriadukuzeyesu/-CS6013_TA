@@ -8,6 +8,7 @@ int main(){
     // std::cout << "Hello\n"; 
 
     HashTable *table = new HashTable(3);
+
     // std::cout << table->tableSize_ << std::endl; 
     int num = 35; 
     int ptr = 58;
@@ -35,7 +36,16 @@ int main(){
     std::cout << "Table size after removing: " << table->tableSize_ << std::endl;
     std::cout << "Valid Entries after removing : " << table->countOfEntries_ << std::endl;
 
-    // std::cout << table->hashTableArray->size_of_memory_allocate_ << std::endl; 
+    // std::cout << table->hashTableArray->size_of_memory_allocate_ << std::endl;
+    delete table; 
 
-
+    HashTable table2 (20); 
+    bool test8 = table2.insert(&num, num); 
+    bool test5 = table2.insert(&ptr, ptr);
+    bool test6 = table2.insert(&num2, num2);
+    bool test7 =  table2.insert(&num3, num3);
+    std::cout << "test5: " << test5 << std::endl;
+    std::cout << "test6: " << test6 << std::endl;
+    std::cout << "test7: " << test7 << std::endl;
+    std::cout << "test8: " << test8 << std::endl;
 }
