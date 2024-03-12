@@ -53,6 +53,7 @@
         "variant": "cpp",
         "vector": "cpp",
         "algorithm": "cpp",
-        "functional": "cpp"
+        "functional": "cpp",
+        "iomanip": "cpp"
     }
 }
