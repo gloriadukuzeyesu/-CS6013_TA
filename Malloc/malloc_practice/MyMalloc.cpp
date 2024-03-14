@@ -270,6 +270,7 @@ void *MyMalloc::allocate(size_t bytesToAllocate)
 
     // source: stack overflow 
     size_t allocatedBlockSize = (bytesToAllocate + PAGE_SIZE - 1) & ~(PAGE_SIZE - 1);
+    // size_t a =  bytesToAllocate + PAGE_SIZE - 1; 
 
     // call mmap to allocate the memory
     void *ptr = mmap(nullptr, allocatedBlockSize,  PROT_READ | PROT_WRITE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0); 
@@ -278,23 +279,6 @@ void *MyMalloc::allocate(size_t bytesToAllocate)
         printf("Error mmap %s", strerror(errno));
         return nullptr;
     }
-    
-    //Only works if find() is public. Now it is inaccessible  
-    // Check if the pointer is already in the hash table
-    // if(hashTable_.find(ptr) != nullptr) 
-    // {
-    //     int ret = munmap(ptr, allocatedBlockSize);
-    //     if (ret < 0) 
-    //     {
-    //          printf("Error 2mmap %s", strerror(errno));
-    //     } 
-    //     else
-    //     {
-    //         perror("Pointer already exist in the HashTable");
-    //         return nullptr;
-
-    //     }
-
     // }
 
     // Insert the returned pointer to the memory address and 
@@ -321,24 +305,13 @@ void *MyMalloc::allocate(size_t bytesToAllocate)
  */
 void *MyMalloc::deallocate(void *ptr_address)
 {
-    // remove entry from the hastTable
-    HashTableEntry *entry = hashTable_.find(ptr_address); 
-    if(entry == nullptr)
-    {
-        return nullptr;
-    }
-    entry->isDeleted_ = true; // lazy deletion (being handled in remove() too ) ??
-
-    // hashTable_.remove(entry->memoryBlockPointer_); 
-    hashTable_.remove(ptr_address); 
-
-    // Deallocate the memory or remove the mapping 
+   size_t sizeOfMemoryRemoved  = hashTable_.remove(ptr_address); 
+   // Deallocate the memory or remove the mapping 
     // int newPr = munmap(entry->memoryBlockPointer_, entry->size_of_memory_allocate_); 
-    int newPr = munmap(ptr_address, entry->size_of_memory_allocate_); 
-
-
+    int newPr = munmap(ptr_address, sizeOfMemoryRemoved); 
     if(newPr < 0) 
     {
         printf("Error %s", strerror(errno));
     }
+
 }
