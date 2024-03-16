@@ -56,7 +56,7 @@ void msdMalloc::deallocate(void *ptr) {
     // Remove the entry from the hash table
     HashTableEntry *entry = hashTable_.search(ptr);
     if (entry == nullptr) {
-        return;
+        return;ls
     }
     entry->isDeleted_ = true; // lazy delete
     hashTable_.remove(entry->memoryBlockPointer_);

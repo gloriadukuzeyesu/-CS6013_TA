@@ -74,7 +74,7 @@ HashTable::HashTable(size_t initialSizeTable)
  */
 bool HashTable::insert(void *ptr_address, size_t allocatedMemorySize)
 {
-    if (countOfEntries_ >= tableSize_)
+    if (countOfEntries_ >= tableSize_) // according to Dav. Grow table when it is 75% full. 
     {
         std::cout << "About to grow table\n";
         // grow the table
