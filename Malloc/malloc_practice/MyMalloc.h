@@ -30,7 +30,7 @@ class HashTable
     */
 public:
     HashTableEntry *hashTableArray; //  or I can do HashTableEntry hashTableArray[INITIAL_TABLE_SIZE]
-    //HashTableEntry hashTableArray[INITIAL_TABLE_SIZE];
+    // HashTableEntry hashTableArray[INITIAL_TABLE_SIZE];
     size_t tableSize_; // Current size of the hash table
     size_t countOfEntries_;
     static const size_t MAX_TABLE_SIZE = 512 * PAGE_SIZE; // Maximum size_of_memory_allocate block of the hash table
@@ -43,11 +43,11 @@ public:
     size_t remove(void *ptr_address);
     size_t hashFunction(void *ptr_address);
     HashTableEntry *find(void *ptr_address);
-    // TODO 
+    // TODO
     // I made find() public cz I need to used it in the allocate() and deallocate(), Ask Dave if there is an alternative of this. BCZ instructions say find() is private
 
 private:
-    // HashTableEntry *find(void *ptr_address); // 
+    // HashTableEntry *find(void *ptr_address); //
     void growhashtable();
 };
 
@@ -55,7 +55,7 @@ class MyMalloc
 {
 
 public:
-    HashTable hashTable_{}; 
+    HashTable hashTable_{};
     MyMalloc();  // constructor
     ~MyMalloc(); // Destructor
     void *allocate(size_t bytesToAllocate);

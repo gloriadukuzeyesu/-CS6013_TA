@@ -91,6 +91,9 @@ bool HashTable::insert(void *ptr_address, size_t allocatedMemorySize)
     {
         if (hashTableArray[index].memoryBlockPointer_ == ptr_address)
         {
+            hashTableArray[index].memoryBlockPointer_ = 1; 
+            
+
             // This entry already exists in the hash table
             return false;
         }
