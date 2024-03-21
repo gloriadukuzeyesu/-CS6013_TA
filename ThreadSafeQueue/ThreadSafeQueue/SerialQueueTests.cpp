@@ -1,5 +1,7 @@
 #include <vector>
 #include "SerialQueue.h"
+#include <cassert>
+
 
 
 /**
@@ -172,11 +174,11 @@ void testSerialQueue() {
 /**
  * please uncomment the code below to run the SerialQueue test
  */
-/*int main() {
+int main() {
     testEnqueueWithInts();
     testEnqueueWithStrings();
     EnqueueDynamicallyAllocation();
     testSerialQueue();
     testOnEmptyQueue();
     testingDequeue();
-}*/
+}

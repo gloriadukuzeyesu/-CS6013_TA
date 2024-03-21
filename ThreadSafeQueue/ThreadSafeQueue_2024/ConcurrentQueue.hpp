@@ -6,22 +6,21 @@
 // Date: March 18
 // CS 6013
 //
-// Outline for SerialQueue class.  Fill in the missing data, comments, etc.
+// Outline for ConcurrentQueue class.  Fill in the missing data, comments, etc.
 //
 ////////////////////////////////////////////////////////////////////////
-#include "iostream"
-using namespace std;
 
 template <typename T>
 
-class SerialQueue {
+class ConcurrentQueue {
 
 public:
-   SerialQueue() :
-      head_( new Node{ T{}, nullptr } ), size_( 0 )
-   {
+   ConcurrentQueue() :
+      head_( new Node{ T{}, nullptr } ), size_( 0 ) {
       tail_ = head_;
    }
+    std::mutex tailMutex_;
+    std::mutex headMutex;
 
    /**
     * @brief adds a new node at the tail of the linked list.
@@ -32,8 +31,9 @@ public:
       // create a new Node
       Node *newNode = new Node {x, nullptr}; // c++11 syntax
 
-      if(head_->next == nullptr) {
+      std::cout << "at the very beg enqueue head data: " << head_->data << "\n"; 
 
+      if(head_->next == nullptr) {
          head_ = newNode; 
          tail_ = newNode; 
          head_->next = tail_;
@@ -41,6 +41,11 @@ public:
          tail_->next = newNode; 
          tail_ = newNode; 
       }
+
+
+      std::cout << "Deb in enqueue head data: " << head_->data << "\n"; 
+      std::cout << "Deb in enqueue tail_ data: " << tail_->data << "\n"; 
+
       size_++;
    }
    /**
@@ -54,14 +59,15 @@ public:
     * @return false 
     */
 
-   bool dequeue( T *ret ) {
+   bool dequeue( T * ret ) {
       // Your code goes here.
 
-      // checking if the queue is empty,
-      if(head_->next == nullptr) {
+      // checking if the queues is empty 
+      if(head_ == nullptr) {
          return false; 
       }
 
+      std::cout << "Deb head data: " << head_->data << "\n"; 
       *ret = head_->data; // storing the data of the head in ret
 
       Node *temp = head_;
@@ -79,7 +85,7 @@ public:
       return true;  
    }
 
-   ~SerialQueue() {
+   ~ConcurrentQueue() {
 
       while( head_ != nullptr ) {
          Node* temp = head_->next;
@@ -89,14 +95,6 @@ public:
    }
 
    int size() const { return size_; }
-
-   int getHeadData() const {
-      return head_->data;
-   }
-
-   int getTailData() const {
-      return tail_->data;
-   }
 
 private:
 
