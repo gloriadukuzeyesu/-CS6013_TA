@@ -62,19 +62,29 @@ public:
          return false; 
       }
 
-      *ret = head_->data; // storing the data of the head in ret
+      Node *newHead = head_->next; 
+      *ret = newHead->data; 
+      head_ = newHead; 
+      delete newHead; 
+      size_--;
 
-      Node *temp = head_;
-      head_ = head_->next; 
+
+      /**
+       *ret = head_->data; // storing the data of the head in ret
+         Node *temp = head_;
+         head_ = head_->next; 
+         delete temp;
+       */
+      
 
       // corner case. when head becomes null, tail has to be null too
       // if(head_ == nullptr) { 
       //    tail_ = nullptr; 
       // }
 
-      delete temp;
+      
 
-      size_--;
+  
 
       return true;  
    }

@@ -61,12 +61,16 @@ void staticAllocation_deque() {
     std::cout <<  "Tail Data: " << queue.getTailData() << "\n"; 
 
     int x_ret, y_ret, z_ret; 
-    assert(queue.dequeue(&x_ret) == true && x_ret == x); 
-    assert(queue.dequeue(&y_ret) == true && y_ret == y);
+    assert(queue.dequeue(&x_ret) == true && x_ret == y); 
+    std::cout << "Head Data: " << queue.getHeadData() << "\n";
+        std::cout <<  "Tail Data: " << queue.getTailData() << "\n"; 
+ 
+    assert(queue.dequeue(&y_ret) == true && y_ret == 40);
     // assert(queue.dequeue(&z_ret) == true && z_ret == z);
 
-     std::cout << "Head Data: " << queue.getHeadData() << "\n"; 
-    std::cout <<  "Tail Data: " << queue.getTailData() << "\n"; 
+    // std::cout << "Head Data: " << queue.getHeadData() << "\n"; 
+    // std::cout << "Head Data: " << queue.getHeadData() << "\n"; 
+    // std::cout <<  "Tail Data: " << queue.getTailData() << "\n"; 
 
     // assert(queue.dequeue(&z_ret) == true && z_ret == z);
 
@@ -96,8 +100,11 @@ void testingOneEmptyList() {
     int z = 40;
     queue.enqueue(x);
     queue.enqueue(y);
-    // queue.enqueue(z);
-    assert(queue.size() == 2);
+    queue.enqueue(z);
+    assert(queue.size() == 3);
+    int xx; 
+    std::cout << queue.dequeue(&xx); 
+
 
 
 }
@@ -106,6 +113,7 @@ int main()
     //staticAllocation_enqueue();
     //dynamicAllocation_enqueue();
     // staticAllocation_deque(); // TODO needs a rework
-    testingOneEmptyList(); 
+    staticAllocation_deque(); 
+    // testingOneEmptyList(); 
     std::cout << "hello\n"; 
 }
