@@ -13,6 +13,7 @@ void staticAllocation_enqueue()
     {
         queue.enqueue(i);
     }
+
     assert(queue.size() == 5);
 
     // std::string
@@ -47,35 +48,34 @@ void dynamicAllocation_enqueue()
     std::cout << "Dynamic allocation enqueue passed\n";
 }
 
+void staticAllocation_deque()
+{
 
-
-void staticAllocation_deque() {
-
-    SerialQueue<int> queue;    
+    SerialQueue<int> queue;
     int x = 20, y = 8, z = 40;
     queue.enqueue(x);
     queue.enqueue(y);
     queue.enqueue(z);
     assert(queue.size() == 3);
-    std::cout << "Head Data: " << queue.getHeadData() << "\n"; 
-    std::cout <<  "Tail Data: " << queue.getTailData() << "\n"; 
-
-    int x_ret, y_ret, z_ret; 
-    assert(queue.dequeue(&x_ret) == true && x_ret == y); 
     std::cout << "Head Data: " << queue.getHeadData() << "\n";
-        std::cout <<  "Tail Data: " << queue.getTailData() << "\n"; 
- 
+    std::cout << "Tail Data: " << queue.getTailData() << "\n";
+
+    int x_ret, y_ret, z_ret;
+    assert(queue.dequeue(&x_ret) == true && x_ret == y);
+    std::cout << "Head Data: " << queue.getHeadData() << "\n";
+    std::cout << "Tail Data: " << queue.getTailData() << "\n";
+
     assert(queue.dequeue(&y_ret) == true && y_ret == 40);
     // assert(queue.dequeue(&z_ret) == true && z_ret == z);
 
-    // std::cout << "Head Data: " << queue.getHeadData() << "\n"; 
-    // std::cout << "Head Data: " << queue.getHeadData() << "\n"; 
-    // std::cout <<  "Tail Data: " << queue.getTailData() << "\n"; 
+    // std::cout << "Head Data: " << queue.getHeadData() << "\n";
+    // std::cout << "Head Data: " << queue.getHeadData() << "\n";
+    // std::cout <<  "Tail Data: " << queue.getTailData() << "\n";
 
     // assert(queue.dequeue(&z_ret) == true && z_ret == z);
 
-    std::cout << "Head Data: " << queue.getHeadData() << "\n"; 
-    std::cout <<  "Tail Data: " << queue.getTailData() << "\n"; 
+    std::cout << "Head Data: " << queue.getHeadData() << "\n";
+    std::cout << "Tail Data: " << queue.getTailData() << "\n";
 
     /**
 
@@ -91,29 +91,32 @@ void staticAllocation_deque() {
      */
 }
 
-
-
-void testingOneEmptyList() {
-    SerialQueue<int> queue;    
-    int x = 20; 
-    int y = 8; 
+void testingOneEmptyList()
+{
+    SerialQueue<int> queue;
+    int x = 20;
+    int y = 8;
     int z = 40;
     queue.enqueue(x);
     queue.enqueue(y);
     queue.enqueue(z);
     assert(queue.size() == 3);
-    int xx; 
-    std::cout << queue.dequeue(&xx); 
-
-
-
+    int xx;
+    std::cout << queue.dequeue(&xx);
 }
+/**
+ * producers (threads that enqueue ints),       threads that we will enqueue
+ * the number of consumers (threads that dequeue ints), threads that dequeue
+ * number of ints that producers and consumers enqueue and dequeue.
+ *
+ */
+
 int main()
 {
-    //staticAllocation_enqueue();
-    //dynamicAllocation_enqueue();
-    // staticAllocation_deque(); // TODO needs a rework
-    staticAllocation_deque(); 
-    // testingOneEmptyList(); 
-    std::cout << "hello\n"; 
+    // staticAllocation_enqueue();
+    // dynamicAllocation_enqueue();
+    //  staticAllocation_deque(); // TODO needs a rework
+    staticAllocation_deque();
+    // testingOneEmptyList();
+    std::cout << "hello\n";
 }

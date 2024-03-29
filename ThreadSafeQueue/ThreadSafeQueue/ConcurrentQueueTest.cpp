@@ -3,6 +3,7 @@
 #include "ConcurrentQueue.hpp"
 
 bool ConcurrentQueueTest::testQueue(int num_producers, int num_consumers, int num_ints) {
+    int verification = (num_producers - num_consumers) * num_ints;
 
     std::vector<std::thread> vecOfThreads(num_producers + num_consumers);
     ConcurrentQueue<int> concurrentQueue;
@@ -29,7 +30,6 @@ bool ConcurrentQueueTest::testQueue(int num_producers, int num_consumers, int nu
         thread.join();
     }
 
-    int verification = (num_producers - num_consumers) * num_ints;
     if (concurrentQueue.size() == verification) {
         std::cout << "test passed\n";
         return true;

@@ -62,35 +62,17 @@ public:
          return false; 
       }
 
-      Node *newHead = head_->next; 
-      *ret = newHead->data; 
-      head_ = newHead; 
-      delete newHead; 
+      Node *newHead = head_->next;  
+      *ret = newHead->data;  // is this weird or it's me who is weird?? 
+      // head_  = newHead ; 
+      head_->next = newHead->next;  //should we update the next ptr of head. Assuming head_ is a dummy pointer and will always stays there??
+
+      // delete newHead; 
       size_--;
-
-
-      /**
-       *ret = head_->data; // storing the data of the head in ret
-         Node *temp = head_;
-         head_ = head_->next; 
-         delete temp;
-       */
-      
-
-      // corner case. when head becomes null, tail has to be null too
-      // if(head_ == nullptr) { 
-      //    tail_ = nullptr; 
-      // }
-
-      
-
-  
-
       return true;  
    }
 
    ~SerialQueue() {
-
       while( head_ != nullptr ) {
          Node* temp = head_->next;
          delete head_;
@@ -100,11 +82,11 @@ public:
 
    int size() const { return size_; }
 
-   int getHeadData() const {
-      return head_->data;
+   T getHeadData() const {
+      return head_->next->data;
    }
 
-   int getTailData() const {
+   T getTailData() const {
       return tail_->data;
    }
 
