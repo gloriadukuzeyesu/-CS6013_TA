@@ -1,7 +1,25 @@
 #include "ConcurrentQueue.hpp"
 #include <vector>
-#include <thread>
 #include <iostream>
+#include <thread>         // std::thread
+
+void producerThreadFunction(ConcurrentQueue<int> concurrentQueue, int num_ints)
+{
+    // role for each producer thread
+    for (int i = 0; i < num_ints; i++)
+    {
+        concurrentQueue.enqueue(i);
+    }
+}
+
+void consumerThreadFunction(ConcurrentQueue<int> concurrentQueue, int num_ints)
+{
+    // role for each consumer thread
+    for (int i = 0; i < num_ints; i++)
+    {
+        concurrentQueue.dequeue(&i);
+    }
+}
 
 bool testQueue(int num_producers, int num_consumers, int num_ints)
 {
@@ -17,11 +35,16 @@ bool testQueue(int num_producers, int num_consumers, int num_ints)
     // d. Create num_producer producer threads that enqueue num_ints ints into the ConcurrentQueue.
     for (int j = 0; j < num_producers; j++)
     {
-        vectorOfThreads[j] = std::thread([&concurrentQueue, num_ints]()
-                                         {
-                for(int i = 0; i < num_ints; i++) {
-                    concurrentQueue.enqueue(i); 
-                } });
+
+        // using lamda function 
+        // vectorOfThreads[j] = std::thread([&concurrentQueue, num_ints]()
+        //                                  {
+        //         for(int i = 0; i < num_ints; i++) {
+        //             concurrentQueue.enqueue(i); 
+        //         } });
+
+        // TODO using function ---- NOT WORKING 
+        vectorOfThreads.push_back(std::thread(producerThreadFunction, concurrentQueue, num_ints)); 
     }
 
     std::cout << "\ndone enqueuing\n";
@@ -29,11 +52,16 @@ bool testQueue(int num_producers, int num_consumers, int num_ints)
     // e. Create num_consumer consumer threads that dequeue num_ints ints from the ConcurrentQueue.
     for (int j = num_producers; j < (num_consumers + num_producers); j++)
     {
-        vectorOfThreads[j] = std::thread([&concurrentQueue, num_ints]()
-                                         {
-                for(int i = 0; i < num_ints; i++) {
-                    concurrentQueue.dequeue(&i); 
-                } });
+        // vectorOfThreads[j] = std::thread([&concurrentQueue, num_ints]()
+        //                                  {
+        //         for(int i = 0; i < num_ints; i++) {
+        //             concurrentQueue.dequeue(&i); 
+        //         } });
+
+        vectorOfThreads.push_back(std::thread(consumerThreadFunction, concurrentQueue, num_ints)); 
+
+        // vectorOfThreads[j] = std::thread(consumerThreadFunction, concurrentQueue, num_ints);
+
     }
     // f.Wait for all threads to join (ie, finish).
     // for (auto &thread: vectorOfThreads) {
@@ -68,6 +96,7 @@ void testSimpleInts()
     {
         concurrentQueue.enqueue(i);
     }
+
     std::cout << "Size: " << concurrentQueue.size() << "\n";
     std::cout << "Head: " << concurrentQueue.getHead() << "\n";
     std::cout << "Tail: " << concurrentQueue.getTail() << "\n";
@@ -90,6 +119,7 @@ int main(int argc, char **argv)
 {
 
     // testSimpleInts();
+
     // testQueue();
 
     int num_producers;

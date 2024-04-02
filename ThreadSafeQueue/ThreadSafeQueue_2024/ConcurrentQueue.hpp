@@ -31,22 +31,25 @@ public:
       // create a new Node
       Node *newNode = new Node {x, nullptr}; // c++11 syntax
       {
-         //std::unique_lock<std::mutex> tailLock(tailMutex_); //acquire a lock on the tail of the queue
-         // if(head_->next == nullptr) {
-         //    /* head_ = newNode; 
-         //    tail_ = newNode; 
-         //    head_->next = tail_; */
-         //    head->next = newNode; 
-         //    tail_ = newNode; 
-         // } else {
-         //    tail_->next = newNode; 
-         //    tail_ = newNode; 
-         // } 
-
          std::unique_lock<std::mutex> tailLock(tailMutex_); //acquire a lock on the tail of the queue
-         tail_->next = newNode;
-         tail_ = newNode;
-         size_++;
+         if(head_->next == nullptr) {
+            head_->next = newNode; 
+            tail_ = newNode;
+            tail_->next = nullptr; // may not neccessary, add more test. 
+            // head_->next = tail_; 
+            // head->next = newNode; 
+            // tail_ = newNode; 
+         } else {
+            tail_->next = newNode; 
+            tail_ = newNode; 
+           
+         } 
+          size_++; 
+
+         // //std::unique_lock<std::mutex> tailLock(tailMutex_); //acquire a lock on the tail of the queue
+         // tail_->next = newNode;
+         // tail_ = newNode;
+         // size_++;
 
       } // lock will be released right after being out of scope
         //lock is automatically released when the std::unique_lock object goes out of scope at the end of 
@@ -54,6 +57,8 @@ public:
       //    std::unique_lock<std::mutex> sizeLock(tailMutex_); //acquire a lock on the tail of the queue
       //    size_++;
       // }
+
+
       
    }
    /**
@@ -70,7 +75,6 @@ public:
    bool dequeue( T * ret ) {
       // Your code goes here.
       std::unique_lock<std::mutex> headLock(headMutex); // Acquire the lock 
-
 
       // checking if the queues is empty 
       if(head_->next == nullptr) {
@@ -98,6 +102,7 @@ public:
    }
 
    int size() const { return size_; }
+
    T getHead() const {
       if(head_->next == nullptr) {
          return 0; 

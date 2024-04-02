@@ -33,10 +33,9 @@ public:
       Node *newNode = new Node {x, nullptr}; // c++11 syntax
 
       if(head_->next == nullptr) {
-
-         head_ = newNode; 
+         head_->next = newNode; 
          tail_ = newNode; 
-         head_->next = tail_;
+         // head_->next = tail_;
       } else {
          tail_->next = newNode; 
          tail_ = newNode; 
