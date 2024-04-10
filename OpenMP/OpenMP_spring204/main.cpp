@@ -1,26 +1,26 @@
 #include <iostream>
+#include <vector>
+#include <atomic>
+#include "mutex"
 #include <thread>
 #include <chrono>
-#include "/opt/homebrew/opt/libomp/include/omp.h"
-// #include <omp.h>
+#include <omp.h>
 
-
-
-
+// #include "/opt/homebrew/opt/libomp/include/omp.h"
 
 template <typename T>
-struct result
+struct result_summary
 {
     T sum;                                    // use T type safe. Can use size_t as well.??
     std::chrono::duration<double> time_taken; // duration
 };
 
 // Part 1: C++ Parallel Reduction
-
+/*
 // 1. Using std::atomic<T> type to ensure adding to it is safe. Each thread is computing the sum of the array
 // and add the sums together. Not what we are looking for.
 template <typename T>
-result<T> parallel_sum_std1(T a[], size_t N, size_t num_threads)
+result_summary<T> parallel_sum_std1(T a[], size_t N, size_t num_threads)
 {
     std::vector<std::thread> vec_of_threads(num_threads);
 
@@ -46,7 +46,7 @@ result<T> parallel_sum_std1(T a[], size_t N, size_t num_threads)
     }
     // end
     const auto end = std::chrono::system_clock::now();
-    result<T> sol;
+    result_summary<T> sol;
     sol.sum = total_sum;
     sol.time_taken = end - start;
     return sol;
@@ -54,12 +54,12 @@ result<T> parallel_sum_std1(T a[], size_t N, size_t num_threads)
 // 1. Using std::atomic<T> type to ensure adding to it is safe.
 // 2. Use a critical section when computing the sum.
 // Allow threads to compute partial sums in parallel
-// and use one master thread to compute the global sum.
+// and use one master thread to compute the global sum. */
 
 template <typename T>
-result<T> parallel_sum_std2(T a[], size_t N, size_t num_threads)
+result_summary<T> parallel_sum_std(T a[], size_t N, size_t num_threads)
 {
-    std::vector<std::thread> vec_of_threads(num_threads);
+    // std::vector<std::thread> vec_of_threads(num_threads);
     std::mutex sum_mutex;
     // start
     const auto start = std::chrono::system_clock::now();
@@ -82,6 +82,8 @@ result<T> parallel_sum_std2(T a[], size_t N, size_t num_threads)
     // divide by threads rounded up.
     // size_t chunkSize = N / num_threads; // won't envely distrube chuncks among the array,
 
+    std::vector<std::thread> vec_of_threads(num_threads);
+
     for (int i = 0; i < num_threads; i++)
     {
         int start_index = i * chunkSize;
@@ -95,12 +97,12 @@ result<T> parallel_sum_std2(T a[], size_t N, size_t num_threads)
     }
 
     const auto end = std::chrono::system_clock::now();
-    result<T> sol;
+    result_summary<T> sol;
     sol.sum = global_sum;
     sol.time_taken = end - start;
     return sol;
 }
-
+/*
 void atomic_behavior_test()
 {
     std::atomic<int> sum = 0;
@@ -119,42 +121,131 @@ void atomic_behavior_test()
     t2.join();
 
     std::cout << "atomic_behavior_test  SUM: " << sum << std::endl;
-}
+} */
 
 /* Part 2: OpenMP Custom Parallel Reduction
 The goal is to learn to write multithreaded code with OpenMP in a fashion analogous to C++ threads,
 and to build your own OpenMP code to do reductions.
  */
 template <typename T>
-void parallel_sum_omp1(Ta[], size_t N, size_t num_threads)
+result_summary<T> parallel_sum_omp1(T a[], size_t N, size_t num_threads)
 {
+    //   std::atomic<T> global_sum = 0;
+    T global_sum = 0;
+    size_t chunkSize = (N + num_threads - 1) / num_threads; // chunch size for each thread
+    const auto start = std::chrono::system_clock::now();
+
+// num_threads number of threads to create
+#pragma omp parallel num_threads(num_threads)
+    {
+        int threadId = omp_get_thread_num();
+        // std::atomic<T> local_sum = 0;
+        T local_sum = 0;
+        size_t startIndex = threadId * chunkSize;
+        size_t endIndex = std::min(startIndex + chunkSize, N);
+
+        for (size_t k = startIndex; k < endIndex; k++)
+        {
+            local_sum += a[k];
+        }
+
+#pragma omp critical
+        global_sum += local_sum;
+    }
+
+    const auto end = std::chrono::system_clock::now();
+    result_summary<T> result;
+    result.sum = global_sum;
+    result.time_taken = end - start;
+    return result;
 }
+
+//  Part 3
+// Part 3: OpenMP Built-in Reduction
+/* Now write a third function, parallel_sum_omp_builtin, with the same signature,
+inputs and outputs as above. Use the OpenMP built-in reduction to compute the sum. */
+template <typename T>
+result_summary<T> parallel_sum_omp_builtin(T a[], size_t N, size_t num_threads)
+{
+    T global_Sum = 0;
+    auto start_time = std::chrono::high_resolution_clock::now();
+    // + initialize globalsum to 0 for every thread
+#pragma omp parallel for reduction(+ : global_Sum) num_threads(num_threads)
+    for (int k = 0; k < N; k++)
+    {
+        global_Sum += a[k];
+    }
+    // at the end all
+    // Local copies are reduced into a single value and combined
+    // with the original global value when returns to the master  thread.
+
+    auto end_time = std::chrono::high_resolution_clock::now();
+    result_summary<T> sol;
+    sol.sum = global_Sum;
+    sol.time_taken = end_time - start_time;
+    return sol;
+}
+
+void strongScaling()
+{
+    int N_values[3] = {1000, 2000, 4000};
+    // million elemnt of size
+    // make the size array really big to see the scaling
+
+    for (int N : N_values)
+    {
+        int a[N];
+        // putting numbers in the array
+        for (int i = 0; i < N; i++)
+        {
+            a[i] = 1;
+        }
+
+        // actual testing fixed N with num_threads changing from 1 - 16
+        for (int num_threads = 1; num_threads < 17; num_threads++)
+        {
+            result_summary<int> sum_part1 = parallel_sum_std(a, N, num_threads);
+            result_summary<int> sum_part2 = parallel_sum_omp1(a, N, num_threads);
+            result_summary<int> sum_part3 = parallel_sum_omp_builtin(a, N, num_threads);
+        }
+    }
+}
+// TODO Weak scaling test
 
 int main()
 {
-    atomic_behavior_test();
+    strongScaling();
 
-    /*  //    int sum = 0;
-     int N = 5;
-     int a[N];
-     result<int> resp = parallel_sum_std(a, N, 2);
-     std::cout << "Sum: " << resp.sum << std::endl;
-     std::cout << "Duration [seconds]: " << resp.time_taken.count() << std::endl;
-    */
+    // atomic_behavior_test();
 
-    int N = 2; // 1, 1, 1, 1, 1
-    int a[N];  // Initialize array with sample values
+    int N = 100; // 1, 1, 1, 1, 1
+    int a[N];    // Initialize array with sample values
     for (int i = 0; i < N; i++)
     {
-        a[i] = 1;
+        a[i] = 2;
     }
-    result<int> resp = parallel_sum_std1(a, N, 5);
-    std::cout << "Sum1: " << resp.sum << std::endl;
-    std::cout << "Duration1 [seconds]: " << resp.time_taken.count() << std::endl;
+    size_t num_threads = 20;
 
-    result<int> resp2 = parallel_sum_std2(a, N, 5);
-    std::cout << "Sum2: " << resp2.sum << std::endl;
-    std::cout << "Duration2 [seconds]: " << resp2.time_taken.count() << std::endl;
+    /*  //  Exercies
+     result<int> resp = parallel_sum_std1(a, N, 5);
+     std::cout << "Sum: " << resp.sum << std::endl;
+     std::cout << "Duration1 [seconds]: " << resp.time_taken.count() << std::endl; */
+
+    // PART 1
+    result_summary<int> sum_part1 = parallel_sum_std(a, N, num_threads);
+    std::cout << "sum_part1: " << sum_part1.sum << std::endl;
+    std::cout << "Duration2 [seconds]: " << sum_part1.time_taken.count() << std::endl;
+
+    // PART 2
+
+    result_summary<int> sum_part2 = parallel_sum_omp1(a, N, num_threads);
+    std::cout << "sum_part2: " << sum_part2.sum << std::endl;
+    std::cout << "Duration2 [seconds]: " << sum_part2.time_taken.count() << std::endl;
+
+    // PART 2
+    result_summary<int> sum_part3 = parallel_sum_omp_builtin(a, N, num_threads);
+    std::cout << "sum_part3: " << sum_part3.sum << std::endl;
+    std::cout << "Duration2 [seconds]: " << sum_part3.time_taken.count() << std::endl;
 
     return 0;
 }
