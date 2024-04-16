@@ -6,6 +6,19 @@
 #include <chrono>
 #include <omp.h>
 
+
+/**
+ * To make #include <omp.h> work. Make sure you are including the path for omp.h file in the make file.
+ * If the red sgriggle continues. Upate the c__pp_properties.json file. 
+ * updat the compilerPath to include where to find g++ and intelliSenseMode 
+ * in my case this is how it looks like.
+ *  "compilerPath": "/opt/homebrew/bin/g++-13",
+ * and  "intelliSenseMode": "macos-clang-arm64"
+ * in most case the g++ is located in the /usr/bin/g++. 
+ * 
+ */
+
+
 // #include "/opt/homebrew/opt/libomp/include/omp.h"
 
 template <typename T>
@@ -149,7 +162,7 @@ result_summary<T> parallel_sum_omp1(T a[], size_t N, size_t num_threads)
             local_sum += a[k];
         }
 
-#pragma omp critical
+    #pragma omp critical
         global_sum += local_sum;
     }
 
