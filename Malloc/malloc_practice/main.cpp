@@ -4,7 +4,7 @@
 
 void ta_hastable_test()
 {
-    HashTable table(2);
+    LinearProbingHashTable table;
     int num = 35;
     int ptr = 58;
     int num2 = 40;
@@ -12,17 +12,114 @@ void ta_hastable_test()
 
     table.insert(&num, num);
     table.insert(&ptr, ptr);
-    std::cout << "Table size1: " << table.getSize() << std::endl;
+    std::cout << "Table size2: " << table.getSize() << std::endl;
 
     table.insert(&num2, num2);
     table.insert(&num3, num3);
-    std::cout << "Table size2: " << table.getSize() << std::endl;
+    std::cout << "Table size4: " << table.getSize() << std::endl;
 
     table.remove(&num);
     std::cout << "Table size3: " << table.getSize() << std::endl;
 
     std::cout << "Test passed\n";
 }
+
+
+void testingForZeroSizeMalloc() {
+    MyMalloc msdMalloc;
+//    void *ptr = msdMalloc.allocate(0);
+    assert(msdMalloc.allocate(0) == nullptr); // can't allocate memory of 0 bytes. mmap () will fail with the length of 0.
+    assert(errno == EINVAL); // Invalid argument error
+    std::cout << "\ntestingForZeroSizeMalloc Passed! \n";
+}
+
+void testForAvoidanceOfCollisionInHashTAble() {
+    MyMalloc allocator2;
+    void *pointer1 = allocator2.allocate(3000);
+    void *pointer2 = allocator2.allocate(3000);
+    // to allocate() before inserting the pointer in the hashTable, I am first checking
+    // if the pointer is already in the hash table, if yes I am returning nullptr and if
+    //  not present, I am adding it to the table to avoid collisions in the table.
+
+    // Testing for collision avoidance
+    assert(pointer1 != nullptr);
+    assert(pointer2 != nullptr);
+    assert(pointer1 != pointer2);
+
+    allocator2.deallocate(pointer1); 
+    allocator2.deallocate(pointer2); 
+
+     // the pointer should not be present in the table
+    assert(allocator2.hashTable.find(pointer1) == 0);
+    assert(allocator2.hashTable.find(pointer2) == 0);
+
+}
+
+/**
+
+
+void ta_hastable_test()
+{
+    LinearProbingHashTable table(2);
+    int num = 35;
+    int ptr = 58;
+    int num2 = 40;
+    int num3 = 80;
+
+    table.insert(&num, num); // 1/2 0.5
+    table.insert(&ptr, ptr); // 
+
+    
+    std::cout << "Table size2: " << table.getCount() << std::endl;
+
+    table.insert(&num2, num2);
+    // table.insert(&num3, num3);
+    // std::cout << "Table size4: " << table.getCount() << std::endl;
+
+    // table.remove(&num);
+    // std::cout << "Table size3: " << table.getCount() << std::endl;
+
+    std::cout << "Test passed\n";
+}
+
+
+void testingForZeroSizeMalloc() {
+    MyMalloc msdMalloc(20);
+//    void *ptr = msdMalloc.allocate(0);
+    assert(msdMalloc.allocate(0) == nullptr); // can't allocate memory of 0 bytes. mmap () will fail with the length of 0.
+    assert(errno == EINVAL); // Invalid argument error
+    std::cout << "\ntestingForZeroSizeMalloc Passed! \n";
+}
+
+void testForAvoidanceOfCollisionInHashTAble() {
+    MyMalloc allocator2(20);
+    void *pointer1 = allocator2.allocate(3000);
+    void *pointer2 = allocator2.allocate(3000);
+    // to allocate() before inserting the pointer in the hashTable, I am first checking
+    // if the pointer is already in the hash table, if yes I am returning nullptr and if
+    //  not present, I am adding it to the table to avoid collisions in the table.
+
+    // Testing for collision avoidance
+    assert(pointer1 != nullptr);
+    assert(pointer2 != nullptr);
+    assert(pointer1 != pointer2);
+
+    allocator2.deallocate(pointer1); 
+    allocator2.deallocate(pointer2); 
+
+     // the pointer should not be present in the table
+    assert(allocator2.allocations.find(pointer1) == -1);
+    assert(allocator2.allocations.find(pointer2) == -1);
+
+}
+
+
+
+ */
+
+
+
+
 
 int main()
 {

@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/Unix_Shell_Students.iml" filepath="$PROJECT_DIR$/.idea/Unix_Shell_Students.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/OpenMP_spring2023.iml" filepath="$PROJECT_DIR$/.idea/OpenMP_spring2023.iml" />
     </modules>
   </component>
 </project>

@@ -115,6 +115,8 @@ result_summary<T> parallel_sum_std(T a[], size_t N, size_t num_threads)
     sol.time_taken = end - start;
     return sol;
 }
+
+
 /*
 void atomic_behavior_test()
 {
